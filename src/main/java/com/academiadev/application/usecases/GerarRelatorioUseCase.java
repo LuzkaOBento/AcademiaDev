@@ -31,7 +31,7 @@ public class GerarRelatorioUseCase {
     public List<Course> listarCursosPorNivel(DifficultyLevel level) {
         return courseRepo.findAll().stream()
                 .filter(c -> c.getDifficultyLevel() == level)
-                .sorted(Comparator.comparing(Course::getTitle)) // [cite: 80] Ordem alfabética
+                .sorted(Comparator.comparing(Course::getTitle)) 
                 .collect(Collectors.toList());
     }
 
@@ -40,22 +40,20 @@ public class GerarRelatorioUseCase {
         return courseRepo.findAll().stream()
                 .filter(c -> c.getStatus() == CourseStatus.ACTIVE)
                 .map(Course::getInstructorName)
-                .collect(Collectors.toSet()); // [cite: 81] Set garante unicidade
+                .collect(Collectors.toSet()); 
     }
 
-    // 3. Agrupar Alunos por Plano
     public Map<SubscriptionPlan, List<Student>> agruparAlunosPorPlano() {
         return userRepo.findAll().stream()
                 .filter(u -> u instanceof Student)
                 .map(u -> (Student) u)
-                .collect(Collectors.groupingBy(Student::getSubscriptionPlan)); // [cite: 82]
+                .collect(Collectors.groupingBy(Student::getSubscriptionPlan)); 
     }
 
-    // 4. Média de Progresso
     public double calcularMediaGeralProgresso() {
         return enrollmentRepo.findAll().stream()
                 .mapToInt(Enrollment::getProgress)
                 .average()
-                .orElse(0.0); // [cite: 83]
+                .orElse(0.0); 
     }
 }

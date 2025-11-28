@@ -1,7 +1,11 @@
 package com.academiadev.application.usecases;
 
-import com.academiadev.application.repositories.*;
-import com.academiadev.domain.entities.*;
+import com.academiadev.application.repositories.CourseRepository;
+import com.academiadev.application.repositories.EnrollmentRepository;
+import com.academiadev.application.repositories.UserRepository;
+import com.academiadev.domain.entities.Course;
+import com.academiadev.domain.entities.Enrollment;
+import com.academiadev.domain.entities.Student;
 import com.academiadev.domain.enums.CourseStatus;
 import com.academiadev.domain.exceptions.EnrollmentException;
 
@@ -22,13 +26,13 @@ public class MatricularAlunoUseCase {
         Course course = courseRepo.findByTitle(courseTitle)
             .orElseThrow(() -> new EnrollmentException("Curso não encontrado"));
 
-        // Validações [cite: 72-75]
+    
         if (course.getStatus() != CourseStatus.ACTIVE) throw new EnrollmentException("Curso inativo");
         if (!student.canEnroll()) throw new EnrollmentException("Limite de plano atingido");
         if (enrollmentRepo.existsByStudentAndCourse(student, courseTitle)) throw new EnrollmentException("Já matriculado");
 
-        // Persistência
+    
         enrollmentRepo.save(new Enrollment(student, course));
-        student.incrementEnrollments(); // Atualiza contador do domínio
+        student.incrementEnrollments(); 
     }
 }

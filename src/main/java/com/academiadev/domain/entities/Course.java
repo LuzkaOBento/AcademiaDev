@@ -16,7 +16,7 @@ public class Course {
         this.status = status;
     }
 
-    // Getters
+    
     public String getTitle() { return title; }
     public CourseStatus getStatus() { return status; }
     public DifficultyLevel getDifficultyLevel() { return difficultyLevel; }

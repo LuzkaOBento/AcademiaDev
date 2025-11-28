@@ -1,0 +1,34 @@
+package com.academiadev.application.usecases;
+
+import com.academiadev.application.repositories.*;
+import com.academiadev.domain.entities.*;
+import com.academiadev.domain.enums.CourseStatus;
+import com.academiadev.domain.exceptions.EnrollmentException;
+
+public class MatricularAlunoUseCase {
+    private final UserRepository userRepo;
+    private final CourseRepository courseRepo;
+    private final EnrollmentRepository enrollmentRepo;
+
+    public MatricularAlunoUseCase(UserRepository userRepo, CourseRepository courseRepo, EnrollmentRepository enrollmentRepo) {
+        this.userRepo = userRepo;
+        this.courseRepo = courseRepo;
+        this.enrollmentRepo = enrollmentRepo;
+    }
+
+    public void execute(String email, String courseTitle) {
+        Student student = (Student) userRepo.findByEmail(email)
+            .orElseThrow(() -> new EnrollmentException("Aluno não encontrado"));
+        Course course = courseRepo.findByTitle(courseTitle)
+            .orElseThrow(() -> new EnrollmentException("Curso não encontrado"));
+
+        // Validações [cite: 72-75]
+        if (course.getStatus() != CourseStatus.ACTIVE) throw new EnrollmentException("Curso inativo");
+        if (!student.canEnroll()) throw new EnrollmentException("Limite de plano atingido");
+        if (enrollmentRepo.existsByStudentAndCourse(student, courseTitle)) throw new EnrollmentException("Já matriculado");
+
+        // Persistência
+        enrollmentRepo.save(new Enrollment(student, course));
+        student.incrementEnrollments(); // Atualiza contador do domínio
+    }
+}

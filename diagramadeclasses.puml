@@ -1,0 +1,97 @@
+@startuml
+skinparam linetype ortho
+
+package "Domain" {
+    abstract class User {
+        - name : String
+        - email : String
+    }
+    class Student {
+        - subscriptionPlan : SubscriptionPlan
+        + canEnroll() : boolean
+    }
+    class Admin
+    class Course {
+        - title : String
+        - status : CourseStatus
+        - difficulty : DifficultyLevel
+    }
+    class Enrollment {
+        - progress : int
+    }
+    class SupportTicket {
+        - message : String
+    }
+    
+    enum SubscriptionPlan
+    enum CourseStatus
+    enum DifficultyLevel
+}
+
+package "Application" {
+    package "Repositories" {
+        interface UserRepository
+        interface CourseRepository
+        interface EnrollmentRepository
+        interface SupportTicketQueue
+    }
+
+    package "UseCases" {
+        class MatricularAlunoUseCase
+        class GerarRelatorioUseCase
+        class AbrirTicketUseCase
+        class AtenderTicketUseCase
+        class AtualizarProgressoUseCase
+    }
+}
+
+package "Infrastructure" {
+    package "Persistence" {
+        class UserRepositoryEmMemoria
+        class CourseRepositoryEmMemoria
+        class EnrollmentRepositoryEmMemoria
+        class SupportTicketQueueEmMemoria
+    }
+    package "UI" {
+        class ConsoleController
+    }
+    package "Utils" {
+        class GenericCsvExporter
+    }
+}
+
+' Herança e Implementação
+User <|-- Student
+User <|-- Admin
+UserRepositoryEmMemoria ..|> UserRepository
+CourseRepositoryEmMemoria ..|> CourseRepository
+EnrollmentRepositoryEmMemoria ..|> EnrollmentRepository
+SupportTicketQueueEmMemoria ..|> SupportTicketQueue
+
+' Relações de Uso (UseCases -> Repositories)
+MatricularAlunoUseCase --> UserRepository
+MatricularAlunoUseCase --> CourseRepository
+MatricularAlunoUseCase --> EnrollmentRepository
+
+GerarRelatorioUseCase --> CourseRepository
+GerarRelatorioUseCase --> EnrollmentRepository
+GerarRelatorioUseCase --> UserRepository
+
+AbrirTicketUseCase --> SupportTicketQueue
+AtenderTicketUseCase --> SupportTicketQueue
+
+AtualizarProgressoUseCase --> EnrollmentRepository
+
+' UI usa UseCases
+ConsoleController --> MatricularAlunoUseCase
+ConsoleController --> GerarRelatorioUseCase
+ConsoleController --> AbrirTicketUseCase
+ConsoleController --> AtenderTicketUseCase
+ConsoleController --> AtualizarProgressoUseCase
+
+' Dependências indiretas
+ConsoleController ..> GenericCsvExporter : usa
+Enrollment --> Student
+Enrollment --> Course
+
+@enduml
